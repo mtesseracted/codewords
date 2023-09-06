@@ -9,6 +9,10 @@ class GridBuilder():
         ''' place a word in the puzzle so that it shares a letter with an existing word '''
         # @TODO: could make it optimial by choosing the smallest footprint choice
         # of all combos, will be horribly expensive as it grows
+        # a better heuristic will be once it's a certain size, then reject moves
+        # that grow the area of the grid by too much
+        # if area(grid) > 100, reject moves that grow the area by more than
+        # a monotically decreasing function
         if len(self.puzzle.words) == 0: # no words yet
             self.puzzle.append_word(word, [0,0], True)
             return True

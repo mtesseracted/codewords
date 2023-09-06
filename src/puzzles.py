@@ -2,16 +2,16 @@ import numpy as np
 
 class PuzzleGrid():
 
-    def __init__(self, blank='#', checker=None):
+    def __init__(self, blank='#', checker=None, max_grid_size=20):
         """
         """
-        self.grid = None
-        self.words = []
-        self.coordinates = []
-        self.directions = []
-        self.blank = blank
-        self.checker = checker
-
+        self.blank = blank     # blank character for str(self)
+        self.checker = checker # spell checker
+        self.max_grid_size = max_grid_size # largest allowed grid length or width
+        self.grid = None       # grid representation
+        self.words = []        # words in the puzzle
+        self.coordinates = []  # grid coordinates of the first letter in the word
+        self.directions = []   # True = horizontal, False = vertical
 
     def append_word(self, word, coordinate, direction):
         """
@@ -23,13 +23,19 @@ class PuzzleGrid():
         self.words.append(word)
         self.coordinates.append(coordinate)
         self.directions.append(direction)
+        if self.grid is not None:
+            self.grid = None
 
     def delete_item(self, item):
         del self.words[item]
         del self.coordinates[item]
         del self.directions[item]
+        if self.grid is not None:
+            self.grid = None
 
     def extend_words(self, words, coordinates, directions):
+        if self.grid is not None:
+            self.grid = None
         raise NotImplementedError
 
 
@@ -69,7 +75,8 @@ class PuzzleGrid():
             NB: this will not check for misspelled words created from words
                 placed next to each other in parallel
         '''
-        self.grid = self.make_grid() # assume redraw needed
+        if self.grid is None:
+            self.grid = self.make_grid() # assume redraw needed
         co1 = np.asarray(self.coordinates)
         co1 = co1 - co1.min(axis=0) # zero to be same as make_grid indices
         for ii, word in enumerate(self.words):
@@ -99,7 +106,8 @@ class PuzzleGrid():
             def check(w):
                 return w in self.words or loc_checker(w)
 
-        self.grid = self.make_grid()
+        if self.grid is None:
+            self.grid = self.make_grid()
 
         # check rows
         grid_str = self.__str__(self.grid, spacer='').split('\n')
