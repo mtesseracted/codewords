@@ -30,7 +30,7 @@ class GridBuilder():
                             new_xy = [old_xy[0] + io, old_xy[1] - iw]
 
                         self.puzzle.append_word(word, new_xy, new_orient)
-                        if self.puzzle.validate():
+                        if self.puzzle.validate() and self.puzzle.spell_check():
                             return True
                         else:
                             self.puzzle.delete_item(-1)
