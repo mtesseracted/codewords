@@ -1,6 +1,7 @@
 import numpy as np
 
 class PuzzleGrid():
+
     def __init__(self, blank='#', checker=None):
         """
         """
@@ -10,6 +11,7 @@ class PuzzleGrid():
         self.directions = []
         self.blank = blank
         self.checker = checker
+
 
     def append_word(self, word, coordinate, direction):
         """
@@ -29,6 +31,7 @@ class PuzzleGrid():
 
     def extend_words(self, words, coordinates, directions):
         raise NotImplementedError
+
 
     def make_grid(self):
         ''' convert to PuzzleGrid? '''
@@ -62,21 +65,10 @@ class PuzzleGrid():
 
 
     def validate(self):
-        ''' determine if coordinates are self consistent '''
-        # write them all down to grid, then make sure when you extract the word
-        # that it's spelled correctly, runs in O(n) for n words
-        # IDEA: on the fly validation, only check words that the added word crosses
-        # bugged:
-        # A) will validate when two parallel words are right next to each other
-        #    and make nonsense 2 letter words
-        # B) will validate when two words are laid end to end because their common
-        #    letter with the perpendicular word is at the begging/end of the end to
-        #    end words
-        # these can be fixed by spell checking all words that can be extracted from
-        # the grid. Spell checking can also be done by checking against the existing
-        # database. We could also make sub databases for words all words of a certain
-        # lenght to speed up lookup time instead of linear search. Also lexigraphical
-        # database sort for binary search
+        ''' determine if coordinates are self consistent
+            NB: this will not check for misspelled words created from words
+                placed next to each other in parallel
+        '''
         self.grid = self.make_grid() # assume redraw needed
         co1 = np.asarray(self.coordinates)
         co1 = co1 - co1.min(axis=0) # zero to be same as make_grid indices
@@ -92,24 +84,15 @@ class PuzzleGrid():
 
         return True
 
-    def shrink_grid(self, grid=None):
-        ''' this is deprecated with on the fly make_grid '''
-        grid = self.make_grid() #
-        # take out empty rows and cols at the far right and bottom
-        row_min = (self.grid == self.blank).argmin(axis=0).max()
-        col_min = (self.grid == self.blank).argmin(axis=1).max()
-        self.grid = self.grid[:row_min + 1, :col_min + 1]
-
-        return self.grid
 
     def spell_check(self, checker=None):
         ''' spell check all words in the grid
         :param checker: spell checker function
         '''
-        # iterate rows then cols, a word is anything not hashes and more than 1 char
+        # iterate rows then cols, a word is anything not split with self.blank
+        # and more than 1 char
         loc_checker = self.checker if checker is None else checker
-
-        if loc_checker is None:
+        if loc_checker is None: # fast version
             def check(w):
                 return w in self.words
         else:
@@ -117,6 +100,8 @@ class PuzzleGrid():
                 return w in self.words or loc_checker(w)
 
         self.grid = self.make_grid()
+
+        # check rows
         grid_str = self.__str__(self.grid, spacer='').split('\n')
         for row in grid_str:
             words = [w for w in row.split(self.blank) if len(w) > 1]
@@ -124,6 +109,7 @@ class PuzzleGrid():
                 if not check(word):
                     return False
 
+        # check cols with transpose
         grid_str = self.__str__(self.grid.T, spacer='').split('\n')
         for row in grid_str:
             words = [w for w in row.split(self.blank) if len(w) > 1]
@@ -133,8 +119,23 @@ class PuzzleGrid():
 
         return True
 
+
+    def shrink_grid(self, grid=None):
+        ''' this is deprecated with on the fly make_grid '''
+        # @TODO: this could be a grid optimizer
+        grid = self.make_grid() #
+        # take out empty rows and cols at the far right and bottom
+        row_min = (self.grid == self.blank).argmin(axis=0).max()
+        col_min = (self.grid == self.blank).argmin(axis=1).max()
+        self.grid = self.grid[:row_min + 1, :col_min + 1]
+
+        return self.grid
+
+
     def __str__(self, grid=None, spacer=' '):
         if grid is None:
             grid = self.make_grid()
         row_strings = [spacer.join(row) for row in grid]
         return '\n'.join(row_strings)
+
+#end class PuzzleGrid():

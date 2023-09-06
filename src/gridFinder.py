@@ -7,10 +7,11 @@ class GridBuilder():
 
     def place_word(self, word):
         ''' place a word in the puzzle so that it shares a letter with an existing word '''
+        # @TODO: could make it optimial by choosing the smallest footprint choice
+        # of all combos, will be horribly expensive as it grows
         if len(self.puzzle.words) == 0: # no words yet
             self.puzzle.append_word(word, [0,0], True)
             return True
-
 
         for ii, old in enumerate(self.puzzle.words):
             common = set(old).intersection(word)
