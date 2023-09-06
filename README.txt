@@ -6,7 +6,8 @@ Tasks:
 - Make the puzzle config!
 - All algos are sampling methods for placement, need to make infrastructure to
   try these algos: place next word at desired spot, see if it breaks the
-boundaries, etc. 
+boundaries, etc.
+- 2 ways to represent a puzzle, list of words with coordinates, and a matrix of letters, '#' is empty
 
 Ideas for how to generate a puzzle:
 - Get a certain number of words that in aggregate have all letters.
@@ -18,3 +19,5 @@ trim it if it has too many words?
 - probably going to need to generate the next word on the fly, unlike a
   crossword there is the additional constraint of the next word has to have
 certain letters. 
+
+
