@@ -2,7 +2,7 @@ import numpy as np
 
 class PuzzleGrid():
 
-    def __init__(self, blank='#', checker=None, max_grid_size=20):
+    def __init__(self, blank=' ', checker=None, max_grid_size=20):
         """
         """
         self.blank = blank     # blank character for str(self)
@@ -70,13 +70,18 @@ class PuzzleGrid():
         return self.grid
 
 
-    def validate(self):
+    def validate(self, size_check=True):
         ''' determine if coordinates are self consistent
             NB: this will not check for misspelled words created from words
                 placed next to each other in parallel
         '''
         if self.grid is None:
             self.grid = self.make_grid() # assume redraw needed
+
+        if size_check:
+            if any([s > self.max_grid_size for s in self.grid.shape]):
+                return False
+
         co1 = np.asarray(self.coordinates)
         co1 = co1 - co1.min(axis=0) # zero to be same as make_grid indices
         for ii, word in enumerate(self.words):
@@ -138,6 +143,12 @@ class PuzzleGrid():
         self.grid = self.grid[:row_min + 1, :col_min + 1]
 
         return self.grid
+
+
+    def clear_words(self):
+        self.words = []
+        self.coordinates = []
+        self.directions = []
 
 
     def __str__(self, grid=None, spacer=' '):

@@ -7,12 +7,6 @@ class GridBuilder():
 
     def place_word(self, word):
         ''' place a word in the puzzle so that it shares a letter with an existing word '''
-        # @TODO: could make it optimial by choosing the smallest footprint choice
-        # of all combos, will be horribly expensive as it grows
-        # a better heuristic will be once it's a certain size, then reject moves
-        # that grow the area of the grid by too much
-        # if area(grid) > 100, reject moves that grow the area by more than
-        # a monotically decreasing function
         if len(self.puzzle.words) == 0: # no words yet
             self.puzzle.append_word(word, [0,0], True)
             return True
@@ -41,6 +35,42 @@ class GridBuilder():
                             self.puzzle.delete_item(-1)
 
         return False # tried all combos, none valid
-    #end def add_word(self, word):
+    #end def place_word(self, word):
+
+
+    def build_grid(self, word_list):
+
+        # try different permuations
+        for itry in range(len(word_list)):
+            self.puzzle.clear_words()
+
+            # try this permutation
+            permuted = self.get_good_order(word_list, itry)
+            for word in permuted:
+                if not self.place_word(word): break
+
+            if len(self.puzzle.words) == len(word_list):
+                return True
+
+        return False
+
+
+    def get_good_order(self, word_list, idx0):
+        pop_list = copy(word_list)
+        ret = [word_list[idx0],]
+        pop_list.remove(ret[0])
+        isafe = 0
+        while len(pop_list) > 0 and isafe < len(word_list):
+            for w in pop_list:
+                if len(set(''.join(ret)).intersection(w)) > 0:
+                    pop_list.remove(w)
+                    ret.append(w)
+                    break
+
+            isafe += 1
+
+        if len(pop_list) > 0:
+            raise ValueError('Cannot satisfy common letter ordering')
+        return ret
 
 

@@ -1,4 +1,5 @@
-
+# @TODO: make a list that's the intersection of the 20k words and
+# scrabble words
 class WordList():
     def __init__(self, filepath):
         self.filepath = filepath

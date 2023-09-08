@@ -15,7 +15,7 @@ data1 = WordList(wordfile1)
 data2 = WordList(wordfile1)
 
 speller = SpellChecker(data2)
-puzz = PuzzleGrid(blank='#', checker=None) #speller.check)
+puzz = PuzzleGrid(blank=' ', checker=None) #speller.check)
 builder = GridBuilder(puzz)
 # builder.add_word(data[101])
 # puzz.append_word(data[100], [0,0], True) # price
