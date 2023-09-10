@@ -19,9 +19,11 @@ data1 = WordList(wordfile1)
 # speller = SpellChecker(data2)
 
 min_word_size = 4
-max_word_size = 12
+max_word_size = 10
 
-num_letters = 26
+num_letters = 10
+min_word_count = 2
+min_total_letters = 40
 word_list = []
 uniqs = set(''.join(word_list))
 isafe = 0
@@ -41,19 +43,26 @@ while len(uniqs) < num_letters:
         print('!! Cannot find words that satisfy constraints !!')
         break
 
-second_list = [
-    'grace',
-    'sewing',
-    'mystery',
-    'winnie',
-    'cowboy',
-    'sailor',
-]
-second_list = [s.upper() for s in second_list]
-word_list.extend(second_list)
+# get total number of words up to a certain count
+while len(word_list) < min_word_count or len(''.join(word_list)) < min_total_letters:
+    new_word = data1[np.random.randint(0, len(data1))]
+    if len(new_word) < min_word_size or len(new_word) > max_word_size: continue
+    if new_word in word_list: continue
+    word_list.append(new_word)
+
+# second_list = [
+#     'grace',
+#     'sewing',
+#     'mystery',
+#     'winnie',
+#     'cowboy',
+#     'sailor',
+# ]
+# second_list = [s.upper() for s in second_list]
+# word_list.extend(second_list)
 
 found = -1
-for size in range(14, 24):
+for size in range(24, 25):
     puzz = PuzzleGrid(max_grid_size=size, blank=' ', checker=None) #speller.check)
     builder = GridBuilder(puzz)
     if builder.build_grid(word_list):
@@ -86,7 +95,7 @@ bg_col = np.array([100, 200, 100]) # lime green
 bg_img[:, :, :] = bg_col[None, None, :]
 ax.imshow(bg_img)
 
-grid_max = max(x.max(), y.max())
+grid_max = max(x.max(), y.max(), 16)
 box_size = round(bg_shape[0] / (grid_max + 3))
 
 for xc, yc, ll in zip(x, y, letters):
@@ -96,6 +105,8 @@ for xc, yc, ll in zip(x, y, letters):
     p = plt.Rectangle((ximg, yimg), box_size, box_size, fill=False, lw=1.2)
     ax.text(ximg + 1, yimg + 3, f'{ilett+1}', fontsize=8,
             horizontalalignment='left', verticalalignment='top', transform=ax.transData)
+    ax.text(ximg + 0.5 * box_size, yimg + 0.6 * box_size, f'{ll.upper()}', fontsize=12,
+            horizontalalignment='center', verticalalignment='center', transform=ax.transData)
     p.set_transform(ax.transData)
     ax.add_patch(p)
 
@@ -143,3 +154,4 @@ for jj in range(2):
 fig.tight_layout(pad=0)
 plt.show()
 
+debug_var = 1

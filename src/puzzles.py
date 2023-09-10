@@ -1,4 +1,6 @@
 import numpy as np
+import random
+from typing import List
 
 class PuzzleGrid():
 
@@ -12,6 +14,8 @@ class PuzzleGrid():
         self.words = []        # words in the puzzle
         self.coordinates = []  # grid coordinates of the first letter in the word
         self.directions = []   # True = horizontal, False = vertical
+        self.knowns = []
+        self.code = list(range(26))
 
     def append_word(self, word, coordinate, direction):
         """
@@ -156,5 +160,18 @@ class PuzzleGrid():
             grid = self.make_grid()
         row_strings = [spacer.join(row) for row in grid]
         return '\n'.join(row_strings)
+
+
+    def make_code(self, seed=None):
+        if seed:
+            np.random.seed(seed)
+        self.code = np.random.permutation(list(range(26)))
+
+    def set_knowns(self, knowns):
+        if isinstance(knowns, list):
+            self.knowns = knowns
+        elif isinstance(knowns, int):
+            self.knowns = random.sample(range(26), knowns)
+
 
 #end class PuzzleGrid():
