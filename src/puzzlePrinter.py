@@ -97,6 +97,7 @@ class PuzzlePrinter():
 
 
     def print_code_boxes(self, ax, fig):
+        # @TODO: make order of boxes in code order, not lexigraphical
         # print out empty numbered boxes for the puzzle solver to fill in
         ax.axis('off')
         bg_rgb = np.array(mcols.to_rgb('w')) * 255
@@ -113,17 +114,17 @@ class PuzzlePrinter():
             for ii in range(13):
                 ximg = wspacer * (ii + 1)
                 yimg = hspacer * (jj + 0.5)
-                ilett = ii + jj * 13
-                coded = self.puzzle.code[ilett] + 1
+                coded = ii + jj * 13
+                ilett = self.puzzle.code_inv[coded]
                 p = plt.Rectangle((ximg, yimg), wspacer, hspacer, fill=False, lw=1.2)
-                ax.text(ximg + 1, yimg + 3, f'{coded}', fontsize=8,
+                ax.text(ximg + 1, yimg + 3, f'{coded + 1}', fontsize=8,
                         horizontalalignment='left', verticalalignment='top', transform=ax.transData)
                 p.set_transform(ax.transData)
                 ax.add_patch(p)
 
                 if ilett in self.puzzle.knowns:
                     ax.text(ximg + 0.5 * wspacer, yimg + 0.6 * hspacer, f'{chr(ilett+ord("A"))}',
-                            fontsize=14, horizontalalignment='center',
+                            fontsize=16, horizontalalignment='center',
                             verticalalignment='center', transform=ax.transData)
 
         return ax

@@ -1,9 +1,21 @@
 import numpy as np
 from copy import copy
+from puzzles import PuzzleGrid
 
 class GridBuilder():
-    def __init__(self, puzzle):
+    def __init__(self, puzzle:PuzzleGrid):
         self.puzzle = puzzle # type PuzzleGrid
+
+    
+    def build_optimized_grid(self, word_list, min_size:int=20, max_size:int=26):
+
+        for size in range(min_size, max_size+1):
+            self.puzzle.max_grid_size = size
+            if self.build_grid(word_list):
+                return self.puzzle
+        
+        raise ValueError(f"Unable to find a size {max_size} grid for that word list")
+
 
     def place_word(self, word):
         ''' place a word in the puzzle so that it shares a letter with an existing word '''

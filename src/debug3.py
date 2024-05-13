@@ -10,9 +10,9 @@ from puzzlePrinter import PuzzlePrinter
 
 np.random.seed(0)
 
-libpath = '/home/al/opt/google-10000-english/'
+libpath = '/home/al/opt/word_dictionaries/custom/'
 # wordfile1 = os.path.join(libpath, 'google-10000-english.txt')
-wordfile1 = os.path.join(libpath, 'common_scrabble.txt')
+wordfile1 = os.path.join(libpath, 'common_scrabble_ordered.txt')
 data1 = WordList(wordfile1)
 
 # wordfile2 = os.path.join(libpath, 'scrabble2019.txt')
@@ -65,9 +65,9 @@ for size in range(24, 25):
 if found == -1:
     print(f'\n!! Unable to find a grid for that word list !!')
 
-# puzz.make_code()
-# aoff = ord('a')
-# puzz.set_knowns([ord('a')-aoff, ord('o')-aoff, ord('x')-aoff, ord('z')-aoff])
+puzz.make_code()
+aoff = ord('a')
+puzz.set_knowns([ord('a')-aoff, ord('o')-aoff, ord('x')-aoff, ord('z')-aoff])
 printer = PuzzlePrinter(puzz)
 fig = plt.figure(figsize=(8, 10))
 fig = printer.create_puzzle_fig(fig, fill_all=False)
@@ -83,3 +83,6 @@ plt.show()
 
 # @TODO: need to be able to condense the grid
 debug_var = 1
+
+# @TODO: reorder the word list by frequency and make it more likely to pull from the front
+#  based on a difficulty huperparameter

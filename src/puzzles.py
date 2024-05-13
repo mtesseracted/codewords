@@ -10,7 +10,7 @@ class PuzzleGrid():
         self.blank = blank     # blank character for str(self)
         self.checker = checker # spell checker
         self.max_grid_size = max_grid_size # largest allowed grid length or width
-        self.grid = None       # grid representation
+        self.grid = None       # grid representation @TODO: refactor into a separate class
         self.words = []        # words in the puzzle
         self.coordinates = []  # grid coordinates of the first letter in the word
         self.directions = []   # True = horizontal, False = vertical
@@ -37,10 +37,10 @@ class PuzzleGrid():
         if self.grid is not None:
             self.grid = None
 
-    def extend_words(self, words, coordinates, directions):
-        if self.grid is not None:
-            self.grid = None
-        raise NotImplementedError
+    # def extend_words(self, words, coordinates, directions):
+    #     if self.grid is not None:
+    #         self.grid = None
+    #     raise NotImplementedError
 
 
     def make_grid(self):
@@ -72,6 +72,8 @@ class PuzzleGrid():
                 self.grid[co1[ii,0]:co2[ii,0], co1[ii,1]] = np.array(list(word))
 
         return self.grid
+    
+    #end def make_grid()
 
 
     def validate(self, size_check=True):
@@ -135,6 +137,8 @@ class PuzzleGrid():
                     return False
 
         return True
+    
+    #end def spell_check()
 
 
     def shrink_grid(self, grid=None):
@@ -163,15 +167,69 @@ class PuzzleGrid():
 
 
     def make_code(self, seed=None):
+        """ scramble the letters into a random ordering """
         if seed:
             np.random.seed(seed)
         self.code = np.random.permutation(list(range(26)))
+        self.code_inv = np.array([np.where(self.code == ii)[0][0] for ii in range(len(self.code))])
 
     def set_knowns(self, knowns):
-        if isinstance(knowns, list):
-            self.knowns = knowns
-        elif isinstance(knowns, int):
+        """ set/choose which letters are the known ones """
+
+        if isinstance(knowns, int): # choose a random number of knowns
+            excludes = ['q', 'x', 'z', 'j', 'f'] # only include at most one of these letters
             self.knowns = random.sample(range(26), knowns)
 
+        elif isinstance(knowns, (list, str)): # user decided knowns
+            if len(knowns) > 0 and isinstance(knowns[0], str):
+                aoff = ord('a')
+                self.knowns = list(set([ord(l.lower())-aoff for l in knowns]))
+            else:
+                self.knowns = list(set(knowns)) # only keep uniques
+        
+        else:
+            raise ValueError("knowns should be a list, str, or int")
+
+    #end def set_knowns()
+
+
+    @staticmethod
+    def make_word_list(data, min_word_size=4, max_word_size=18, 
+                       min_word_count=18, min_total_letters=200):
+        
+        num_letters = 26
+        word_list = []
+        uniqs = set(''.join(word_list))
+        
+        # get a set of words that have all the letters
+        isafe = 0 # safety counter for looping
+        while len(uniqs) < num_letters:
+            new_word = data[np.random.randint(0, len(data))]
+            if len(new_word) < min_word_size or \
+                len(new_word) > max_word_size: continue
+            new_list = word_list + [new_word,]
+            new_uniqs = set(''.join(new_list))
+            if len(new_uniqs) == len(uniqs):
+                continue
+            else:
+                uniqs = new_uniqs
+                word_list = new_list
+
+            isafe += 1
+            if isafe > 0.5 * len(data):
+                print('!! Cannot find words that satisfy constraints !!')
+                raise ValueError("Cannot find a word list")
+            
+        # get total number of words up to be at least min_word_count and min_letter_count
+        while len(word_list) < min_word_count and len(''.join(word_list)) < min_total_letters:
+            new_word = data[np.random.randint(0, len(data))]
+            if len(new_word) < min_word_size or len(new_word) > max_word_size: continue
+            if new_word in word_list: continue
+            word_list.append(new_word)
+
+        return word_list
+            
+    #end def make_word_list()
+        
 
 #end class PuzzleGrid():
