@@ -172,7 +172,7 @@ class PuzzleGrid():
         if seed:
             np.random.seed(seed)
         self.code = np.random.permutation(list(range(26)))
-        self.solution = self.code.copy
+        self.solution = self.code.copy()
 
     @property
     def code_inv(self):
@@ -183,7 +183,7 @@ class PuzzleGrid():
 
         if isinstance(knowns, int): # choose a random number of knowns
             excludes = ['q', 'x', 'z', 'j', 'f'] # only include at most one of these letters
-            self.knowns = random.sample(range(26), knowns)
+            self.knowns = list(random.sample(range(26), knowns))
 
         elif isinstance(knowns, (list, str)): # user decided knowns
             if len(knowns) > 0 and isinstance(knowns[0], str):
@@ -218,17 +218,23 @@ class PuzzleGrid():
 
 
     def remove_guess(self, lett):
+        try:
+            anum = int(lett)
+            lett = self.num_alph(anum)
+        except ValueError as err:
+            anum = self.alph_num(lett)
 
-        anum = self.alph_num(lett)
+        if anum in self.knowns:
+            self.knowns.remove(anum)
+        else:
+            raise ValueError("This letter is not known")
 
+        curr_num = self.code[anum]
         # find correct letter
-        curr_num = np.arwhere(self.code == anum)[0, 0]
-        orig_num = np.argwhere(self.solution == anum)[0, 0]
-        if orig_num != curr_num:
-            orig_lett = self.num_alph(self.solution[orig_num])
+        orig_lett = self.num_alph(np.argsort(self.solution)[curr_num])
+        if orig_lett != lett:
             self.swap_letters(orig_lett, lett)
 
-        self.knowns.remove(anum)
         return self
     #end def remove_guess
 
@@ -303,6 +309,13 @@ class PuzzleGrid():
         return word_list
             
     #end def make_word_list()
+
+    def check_solve(self):
+        if len(set(self.knowns)) == 26:
+            if np.allclose(self.code, self.solution):
+                return True
+
+        return False
         
 
 #end class PuzzleGrid():
