@@ -16,6 +16,7 @@ class PuzzleGrid():
         self.directions = []   # True = horizontal, False = vertical
         self.knowns = []
         self.code = list(range(26))
+        self.solution = []
 
     def append_word(self, word, coordinate, direction):
         """
@@ -171,7 +172,11 @@ class PuzzleGrid():
         if seed:
             np.random.seed(seed)
         self.code = np.random.permutation(list(range(26)))
-        self.code_inv = np.array([np.where(self.code == ii)[0][0] for ii in range(len(self.code))])
+        self.solution = self.code.copy
+
+    @property
+    def code_inv(self):
+        return np.argsort(self.code)
 
     def set_knowns(self, knowns):
         """ set/choose which letters are the known ones """
@@ -184,13 +189,81 @@ class PuzzleGrid():
             if len(knowns) > 0 and isinstance(knowns[0], str):
                 aoff = ord('a')
                 self.knowns = list(set([ord(l.lower())-aoff for l in knowns]))
-            else:
+            else: # set of ints
                 self.knowns = list(set(knowns)) # only keep uniques
         
         else:
             raise ValueError("knowns should be a list, str, or int")
 
     #end def set_knowns()
+
+    def add_guess(self, num, lett):
+        """ guess a number letter combo and add that the puzzle """
+        inum = num - 1 # switch to 0-based
+        anum = self.alph_num(lett)
+        if anum in self.knowns:
+            raise ValueError("This letter is already known")
+
+        if inum in self.code[self.knowns]:
+            raise ValueError("This number is already known")
+
+        # corr_lett = self.num_alph(self.code[inum])
+        corr_lett = self.num_alph(self.code_inv[inum])
+        if corr_lett != lett: # guess is incorrect, update words with guess
+            self.swap_letters(corr_lett, lett)
+
+        self.knowns.append(self.alph_num(lett))
+        return self
+    #end def add_guess()
+
+
+    def remove_guess(self, lett):
+
+        anum = self.alph_num(lett)
+
+        # find correct letter
+        curr_num = np.arwhere(self.code == anum)[0, 0]
+        orig_num = np.argwhere(self.solution == anum)[0, 0]
+        if orig_num != curr_num:
+            orig_lett = self.num_alph(self.solution[orig_num])
+            self.swap_letters(orig_lett, lett)
+
+        self.knowns.remove(anum)
+        return self
+    #end def remove_guess
+
+    def code_letter(self, a):
+        return self.code[self.alph_num(a)]
+
+
+    def swap_letters(self, a, b):
+        if a == b: return self
+
+        # swap letters in the word list
+        for iw, word in enumerate(self.words):
+            tmp = word.lower().replace(a, '@')
+            tmp = tmp.replace(b, a)
+            tmp = tmp.replace('@', b) # swap
+            self.words[iw] = tmp.upper()
+
+        # swap letters in the code so they show up the same in printing
+        na = self.alph_num(a)
+        nb = self.alph_num(b)
+        tmp = self.code[na]
+        self.code[na] = self.code[nb]
+        self.code[nb] = tmp
+
+        return self
+    #end def swap_letters
+
+
+    @staticmethod
+    def alph_num(lett): # alpha (a-z,A-Z) to number (0-25)
+        return ord(lett.lower()) - ord('a')
+
+    @staticmethod
+    def num_alph(num): # number (0-25) to alpha (a-z)
+        return chr(num + ord('a'))
 
 
     @staticmethod
