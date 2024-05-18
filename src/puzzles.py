@@ -358,6 +358,29 @@ class PuzzleGrid():
                 return True
 
         return False
+
+    @staticmethod
+    def new_word(word_list, data, distro='uniform'):
+        """ get a new word for word_list from data that is not in word_list """
+
+        if distro == 'uniform':
+            irand = np.random.randint(0, len(data))
+        elif distro == 'beta':
+            irand = int(np.random.beta(1, 3) * len(data))
+        
+        while not PuzzleGrid.check_exists(data[irand], word_list):
+            irand = (irand + 3) % len(data)
+
+        return data[irand]
+
+    @staticmethod
+    def check_exists(word, word_list):
+        """ check if word in word list, has to be more than 2 letters different """
+        for w in word_list:
+            if len(w) - len(word) - w.find(word) <= 1:
+                return True
+        return False
+
         
 
 #end class PuzzleGrid():

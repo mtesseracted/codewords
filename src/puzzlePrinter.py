@@ -22,15 +22,15 @@ class PuzzlePrinter():
         self.print_puzzle_grid(grid_ax, fig, fill_all=fill_all)
 
         lett_ax = fig.add_subplot(20, 1, 17)
-        self.print_all_letters(lett_ax, fig)
+        self.print_all_letters(lett_ax, fig, fill_all=fill_all)
 
         code_ax = fig.add_subplot(20, 1, (18, 20))
-        self.print_code_boxes(code_ax, fig)
+        self.print_code_boxes(code_ax, fig, fill_all=fill_all)
 
         fig.tight_layout(pad=0)
         return fig
 
-    def print_puzzle_grid(self, ax, fig, fill_all, bg_col='w'):
+    def print_puzzle_grid(self, ax, fig, fill_all=False, bg_col='w'):
         ax.axis('off')
         bg_rgb = np.array(mcols.to_rgb(bg_col)) * 255
         bg_shape = np.array([8, 8]) * fig.dpi
@@ -67,7 +67,7 @@ class PuzzlePrinter():
         return ax
 
 
-    def print_all_letters(self, ax, fig):
+    def print_all_letters(self, ax, fig, fill_all=False):
         # print all letter for the puzzle solver to cross out found letters
         ax.axis('off')
         bg_rgb = np.array(mcols.to_rgb('w')) * 255
@@ -96,7 +96,7 @@ class PuzzlePrinter():
         return ax
 
 
-    def print_code_boxes(self, ax, fig):
+    def print_code_boxes(self, ax, fig, fill_all=False):
         # @TODO: make order of boxes in code order, not lexigraphical
         # print out empty numbered boxes for the puzzle solver to fill in
         ax.axis('off')
@@ -122,7 +122,7 @@ class PuzzlePrinter():
                 p.set_transform(ax.transData)
                 ax.add_patch(p)
 
-                if ilett in self.puzzle.knowns:
+                if ilett in self.puzzle.knowns or fill_all:
                     ax.text(ximg + 0.5 * wspacer, yimg + 0.6 * hspacer, f'{chr(ilett+ord("A"))}',
                             fontsize=16, horizontalalignment='center',
                             verticalalignment='center', transform=ax.transData)
