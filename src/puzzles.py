@@ -1,8 +1,10 @@
 import numpy as np
 import random
 from typing import List
+from copy import copy, deepcopy
 
 class PuzzleGrid():
+    """ @TODO: refactor so the grid is a member of PuzzleGrid """
 
     def __init__(self, blank=' ', checker=None, max_grid_size=20):
         """
@@ -18,9 +20,26 @@ class PuzzleGrid():
         self.code = list(range(26))
         self.solution = []
 
+    def __copy__(self):
+        ret = PuzzleGrid(blank=self.blank, checker=self.checker, 
+                         max_grid_size=self.max_grid_size,)
+        ret.grid = deepcopy(self.grid)
+        ret.words = deepcopy(self.words)
+        ret.coordinates = deepcopy(self.coordinates)
+        ret.directions = deepcopy(self.directions)
+        ret.knowns = deepcopy(self.knowns)
+        ret.code = deepcopy(self.code)
+        ret.solution = deepcopy(self.solution)
+
+        return ret
+
+    def copy(self):
+        return self.__copy__()
+
+
     def append_word(self, word, coordinate, direction):
         """
-        :param word:
+        :param word:set_knowns
         :param coordinate:
         :param direction: True for horizontal, False for vertical
         :return:
@@ -178,12 +197,33 @@ class PuzzleGrid():
     def code_inv(self):
         return np.argsort(self.code)
 
+    def letter_count(self, a):
+        """ how many times does this letter appear """
+        counts = 0
+        for word in self.words:
+            counts += sum([l == a for l in word])
+
+        return counts
+
+
+
     def set_knowns(self, knowns):
         """ set/choose which letters are the known ones """
 
         if isinstance(knowns, int): # choose a random number of knowns
-            excludes = ['q', 'x', 'z', 'j', 'f'] # only include at most one of these letters
-            self.knowns = list(random.sample(range(26), knowns))
+            uncommon = 'qxzjfkb' # only include at most one of these letters
+            commons = 'aeiostln'
+
+            self.knowns = [
+                self.alph_num(commons[np.random.randint(len(commons))]),
+            ]
+            if knowns > 1:
+                self.knowns.append(self.alph_num(uncommon[np.random.randint(len(uncommon))]))
+
+            while len(self.knowns) < knowns:
+                new_lett = np.random.randint(26)
+                if new_lett not in self.knowns:
+                    self.knowns.append(new_lett)
 
         elif isinstance(knowns, (list, str)): # user decided knowns
             if len(knowns) > 0 and isinstance(knowns[0], str):
@@ -274,7 +314,7 @@ class PuzzleGrid():
 
     @staticmethod
     def make_word_list(data, min_word_size=4, max_word_size=18, 
-                       min_word_count=18, min_total_letters=200):
+                       min_word_count=12, min_total_letters=200):
         
         num_letters = 26
         word_list = []
@@ -283,7 +323,9 @@ class PuzzleGrid():
         # get a set of words that have all the letters
         isafe = 0 # safety counter for looping
         while len(uniqs) < num_letters:
-            new_word = data[np.random.randint(0, len(data))]
+            # irand = np.random.randint(0, (len(data)))
+            irand = int(np.random.beta(1, 3) * len(data))
+            new_word = data[irand]
             if len(new_word) < min_word_size or \
                 len(new_word) > max_word_size: continue
             new_list = word_list + [new_word,]

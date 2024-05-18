@@ -7,11 +7,24 @@ class GridBuilder():
         self.puzzle = puzzle # type PuzzleGrid
 
     
-    def build_optimized_grid(self, word_list, min_size:int=20, max_size:int=26):
+    def build_optimized_grid(self, word_list, extra_words=None, extra_count=0, min_size:int=20, max_size:int=26):
 
         for size in range(min_size, max_size+1):
             self.puzzle.max_grid_size = size
             if self.build_grid(word_list):
+
+                if extra_words is not None and extra_count > 0: # fill in with more words
+                    added = 0
+                    safe_count = 0
+                    while added < extra_count and safe_count < 100:
+                        safe_count += 1
+                        word = extra_words[np.random.randint(0, len(extra_words))]
+                        while word in word_list:
+                            word = extra_words[np.random.randint(0, len(extra_words))]
+
+                        if self.place_word(word):
+                            added += 1
+
                 return self.puzzle
         
         raise ValueError(f"Unable to find a size {max_size} grid for that word list")
