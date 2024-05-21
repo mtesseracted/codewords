@@ -18,12 +18,12 @@ from puzzlePrinter import PuzzlePrinter
 # bash script for pdf stitcher: stich puzz*.pdf, then soln*.pdf, then join those
 
 
-num_puzzles = 8
+num_puzzles = 4
 seed_start = 10
 
 custom_num, custom_file = 2, 'word_lists/list1.txt'
 
-save_dir = f"book__puzzle11-{num_puzzles}__seed-{seed_start}"
+save_dir = f"book__puzzle12-{num_puzzles}__seed-{seed_start}"
 os.makedirs(save_dir, exist_ok=True)
 
 libpath = '/home/al/opt/word_dictionaries/custom/'
@@ -65,14 +65,14 @@ for ip, puzz in enumerate(puzz_list):
     fig = plt.figure(figsize=(8.5, 11))
     printer = PuzzlePrinter(puzz)
     printer.create_puzzle_fig(fig, fill_all=False, title=f"Grackle Puzzle {ip+1}")
-    fig.tight_layout(w_pad=0, h_pad=0, pad=0.0) #pad=0)
+    fig.tight_layout(w_pad=0, h_pad=0, pad=0) #pad=0)
     plt.savefig(os.path.join(save_dir, f"puzz{ip+1:03d}.png"), pad_inches=0)
     plt.close(fig)
 
     fig = plt.figure(figsize=(8.5, 11))
     printer = PuzzlePrinter(puzz)
     printer.create_puzzle_fig(fig, fill_all=True, title=f"Grackle Puzzle {ip+1}")
-    fig.tight_layout(w_pad=0, h_pad=0, pad=0.0) #pad=0)
+    fig.tight_layout(w_pad=0, h_pad=0, pad=0) #pad=0)
     plt.savefig(os.path.join(save_dir, f"solv{ip+1:03d}.png"), pad_inches=0)
     plt.close(fig)
 
