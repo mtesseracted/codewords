@@ -15,28 +15,99 @@ class PuzzlePrinter():
         letters = grid[mask]
         return x, y, letters
 
+    def create_solution_fig(self, fig, labels=None):
+        rowsizes = [1,] + [2,]*8 + [1,]
+        nrows = 10 #sum(rowsizes)
+        ncols = 10
+        if not isinstance(self.puzzle, list):
+            raise ValueError("Cannot create solution without a list of puzzles")
 
-    def create_puzzle_fig(self, fig, fill_all=False):
+        if labels is not None and len(labels) != len(self.puzzle):
+            raise ValueError("Lenght of labels is not the same as num puzzles")
 
-        grid_ax = fig.add_subplot(20, 1, (1, 16))
-        self.print_puzzle_grid(grid_ax, fig, fill_all=fill_all)
+        puzz_list = self.puzzle
+        for ip, puzz in enumerate(puzz_list):
+            self.puzzle = puzz
+            ilo = (ip+1) * ncols + 1
+            ihi = ilo + ncols - 1
 
-        lett_ax = fig.add_subplot(20, 1, 17)
-        self.print_all_letters(lett_ax, fig, fill_all=fill_all)
+            ax = fig.add_subplot(nrows, 10, ilo)
+            ax.axis('off')
+            bg_rgb = np.array(mcols.to_rgb('w')) * 255
+            bg_shape = np.array([10 * 2 / 20, 8]) * fig.dpi
+            bg_shape = [*bg_shape.astype(int), 3]
+            bg_img = np.zeros(bg_shape, dtype=np.uint8)
+            bg_img[:, :, :] = bg_rgb[None, None, :]
+            ax.imshow(bg_img)
 
-        code_ax = fig.add_subplot(20, 1, (18, 20))
-        self.print_code_boxes(code_ax, fig, fill_all=fill_all)
+            spacer = round(bg_shape[1] / 27.5)
+            ii = 24
+            ximg = spacer * (ii + 1)
+            yimg = round(0.5 * bg_shape[0])
 
-        fig.tight_layout(pad=0)
+            title = ip+1 if labels is None else labels[ip]
+            ax.text(ximg, yimg, str(title), fontsize=20,
+                    horizontalalignment='center', verticalalignment='center',
+                    transform=ax.transData)
+
+            code_ax = fig.add_subplot(nrows, 10, (ilo+1, ihi))
+            self.print_code_boxes(code_ax, fig, fill_all=True)
+
+        self.puzzle = puzz_list
         return fig
+    #end def create_solution_fig()
+
+    def create_puzzle_fig(self, fig, fill_all=False, title=None):
+
+        # rowsizes = [1, 16, 1, 3]
+        rowsizes = [1, 2, 28, 2, 5, 1] # use divisions from 4*11
+        nrows = sum(rowsizes)
+        off = 0
+        offs = [off:=off+s for s in rowsizes] # cumulative sum
+        io = 0
+
+        grid_ax = fig.add_subplot(nrows, 1, (offs[io]+1, offs[io+1]))
+        self.print_puzzle_title(grid_ax, fig, title=title); io+=1
+
+        grid_ax = fig.add_subplot(nrows, 1, (offs[io]+1, offs[io+1]))
+        self.print_puzzle_grid(grid_ax, fig, fill_all=fill_all); io+=1
+
+        lett_ax = fig.add_subplot(nrows, 1, (offs[io]+1, offs[io+1]))
+        self.print_all_letters(lett_ax, fig, fill_all=fill_all); io+=1
+
+        code_ax = fig.add_subplot(nrows, 1, (offs[io]+1, offs[io+1]))
+        self.print_code_boxes(code_ax, fig, fill_all=fill_all); io+=1
+
+        return fig
+
+    def print_puzzle_title(self, ax, fig, title=None):
+        """ print the puzzle number at the top """
+        ax.axis('off')
+        bg_rgb = np.array(mcols.to_rgb('w')) * 255
+        bg_shape = np.array([10 * 2 / 20, 8]) * fig.dpi
+        bg_shape = [*bg_shape.astype(int), 3]
+        bg_img = np.zeros(bg_shape, dtype=np.uint8)
+        bg_img[:, :, :] = bg_rgb[None, None, :]
+        ax.imshow(bg_img)
+
+        if title is not None:
+            spacer = round(bg_shape[1] / 27.5)
+            ii = int(26 / 2)
+            ximg = spacer * (ii + 1)
+            yimg = round(0.5 * bg_shape[0])
+            ax.text(ximg, yimg, str(title), fontsize=20,
+                    horizontalalignment='center', verticalalignment='center',
+                    transform=ax.transData)
+
+        return ax
 
     def print_puzzle_grid(self, ax, fig, fill_all=False, bg_col='w'):
         ax.axis('off')
+        # bg_rgb = np.array([100, 200, 100])  # lime green
         bg_rgb = np.array(mcols.to_rgb(bg_col)) * 255
         bg_shape = np.array([8, 8]) * fig.dpi
         bg_shape = [*bg_shape.astype(int), 3]
         bg_img = np.zeros(bg_shape, dtype=np.uint8)
-        # bg_col = np.array([100, 200, 100])  # lime green
         bg_img[:, :, :] = bg_rgb[None, None, :]
         ax.imshow(bg_img)
 
@@ -77,9 +148,10 @@ class PuzzlePrinter():
         # bg_col = np.array([220, 100, 120])  # light red
         bg_img[:, :, :] = bg_rgb[None, None, :]
         ax.imshow(bg_img)
-        spacer = round(bg_shape[1] / 27.5)
+        # spacer = round(bg_shape[1] / 27.5)
+        spacer = round(bg_shape[1] / 32)
         for ii in range(26):
-            ximg = spacer * (ii + 1)
+            ximg = spacer * (ii + 3.25)
             yimg = round(0.5 * bg_shape[0])
             ax.text(ximg, yimg, f'{chr(ii + ord("A"))}', fontsize=8,
                     horizontalalignment='center', verticalalignment='center',
@@ -128,4 +200,8 @@ class PuzzlePrinter():
                             verticalalignment='center', transform=ax.transData)
 
         return ax
+
+       
+
+
 

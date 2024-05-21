@@ -2,6 +2,9 @@ import numpy as np
 from copy import copy
 from puzzles import PuzzleGrid
 
+class GridException(Exception):
+    pass
+
 class GridBuilder():
     def __init__(self, puzzle:PuzzleGrid):
         self.puzzle = puzzle # type PuzzleGrid
@@ -27,7 +30,7 @@ class GridBuilder():
 
                 return self.puzzle
         
-        raise ValueError(f"Unable to find a size {max_size} grid for that word list")
+        raise GridException(f"Unable to find a size {max_size} grid for that word list")
 
 
     def place_word(self, word):

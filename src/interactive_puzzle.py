@@ -16,7 +16,12 @@ libpath = '/home/al/opt/word_dictionaries/custom/'
 # wordfile1 = os.path.join(libpath, 'google-10000-english.txt')
 wordfile1 = os.path.join(libpath, 'common_scrabble_ordered.txt')
 data1 = WordList(wordfile1)
-word_list = PuzzleGrid.make_word_list(data1, min_word_count=16)
+# word_list = PuzzleGrid.make_word_list(data1, min_word_count=16)
+
+custom_num, custom_file = -2, 'word_lists/list1.txt'
+ll = open(custom_file, 'r').readlines()
+ll = [l.strip().upper() for l in ll]
+word_list = PuzzleGrid.make_word_list(data1, min_word_count=16, init_list=ll)
 
 # make the puzzle
 puzz = PuzzleGrid(blank=' ', checker=None)

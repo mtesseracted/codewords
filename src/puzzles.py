@@ -36,6 +36,10 @@ class PuzzleGrid():
     def copy(self):
         return self.__copy__()
 
+    def to_dict(self): # for saving
+        ret = {}
+        return ret
+
 
     def append_word(self, word, coordinate, direction):
         """
@@ -314,10 +318,11 @@ class PuzzleGrid():
 
     @staticmethod
     def make_word_list(data, min_word_size=4, max_word_size=18, 
-                       min_word_count=12, min_total_letters=200):
+                       min_word_count=12, min_total_letters=200,
+                       init_list=None):
         
         num_letters = 26
-        word_list = []
+        word_list = [] if init_list is None else init_list
         uniqs = set(''.join(word_list))
         
         # get a set of words that have all the letters
