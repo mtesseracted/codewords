@@ -15,49 +15,63 @@ class PuzzlePrinter():
         letters = grid[mask]
         return x, y, letters
 
-    def create_solution_fig(self, fig, labels=None):
-        rowsizes = [1,] + [2,]*8 + [1,]
-        nrows = 10 #sum(rowsizes)
-        ncols = 10
+    def create_solution_fig(self, fig, labels=None, pad=0.5):
+
         if not isinstance(self.puzzle, list):
             raise ValueError("Cannot create solution without a list of puzzles")
 
         if labels is not None and len(labels) != len(self.puzzle):
             raise ValueError("Lenght of labels is not the same as num puzzles")
 
+        fig_size = fig.get_size_inches()
+        soln_per = 8
+
+        if hasattr(pad, '__len__'):
+            wpad = pad[0] / fig_size[0]
+            hpad = pad[1] / fig_size[1]
+        else:
+            wpad = pad / fig_size[0]
+            hpad = pad / fig_size[1]
+
+        sub_wd = 1 - 2*wpad
+        ax_widths = [wpad, 0.05*sub_wd, 0.95*sub_wd, wpad]
+
+        sub_ht = fig_size[1] - 2*pad
+        ax_heights = [hpad,] + [sub_ht/fig_size[1],]*soln_per + [hpad,]
+        fig_spec = fig.add_gridspec(ncols=len(ax_widths), nrows=len(ax_heights),
+                                    width_ratios=ax_widths, height_ratios=ax_heights)
+
         puzz_list = self.puzzle
         for ip, puzz in enumerate(puzz_list):
             self.puzzle = puzz
-            ilo = (ip+1) * ncols + 1
-            ihi = ilo + ncols - 1
 
-            ax = fig.add_subplot(nrows, 10, ilo)
-            ax.axis('off')
+            num_ax = fig.add_subplot(fig_spec[ip+1, 1])
+            num_ax.axis('off')
             bg_rgb = np.array(mcols.to_rgb('w')) * 255
             bg_shape = np.array([10 * 2 / 20, 8]) * fig.dpi
             bg_shape = [*bg_shape.astype(int), 3]
             bg_img = np.zeros(bg_shape, dtype=np.uint8)
             bg_img[:, :, :] = bg_rgb[None, None, :]
-            ax.imshow(bg_img)
+            num_ax.imshow(bg_img)
 
             spacer = round(bg_shape[1] / 27.5)
-            ii = 24
-            ximg = spacer * (ii + 1)
-            yimg = round(0.5 * bg_shape[0])
+            ximg = spacer * (13 + 1)
+            ximg = 0.5 * bg_shape[1]
+            yimg = 0.5 * bg_shape[0]
 
             title = ip+1 if labels is None else labels[ip]
-            ax.text(ximg, yimg, str(title), fontsize=20,
+            num_ax.text(ximg, yimg, str(title), fontsize=20,
                     horizontalalignment='center', verticalalignment='center',
-                    transform=ax.transData)
+                    transform=num_ax.transData)
 
-            code_ax = fig.add_subplot(nrows, 10, (ilo+1, ihi))
+            code_ax = fig.add_subplot(fig_spec[ip+1, 2])
             self.print_code_boxes(code_ax, fig, fill_all=True)
 
         self.puzzle = puzz_list
         return fig
     #end def create_solution_fig()
 
-    def create_puzzle_fig(self, fig, fill_all=False, title=None, pad=0.6):
+    def create_puzzle_fig(self, fig, fill_all=False, title=None, pad=0.5):
         """ create a puzzle figure with title, grid, letter line, then code boxes
         :param fig: pyplot figure, assumed to be 8.5x11"
         :param fill_all: (bool) whether to fill in the solution

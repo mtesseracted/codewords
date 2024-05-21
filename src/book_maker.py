@@ -12,9 +12,9 @@ from puzzlePrinter import PuzzlePrinter
 
 # @TODO:
 # save/load puzzle
-# add arg to make_word_list for starting words
-# plot for solutions, either 2x2 per page or 2x8 code solutions
-# 8.5 x 11 print with margins
+# DONE ~add arg to make_word_list for starting words
+# DONE ~plot for solutions, either 2x2 per page or 2x8 code solutions
+# DONE ~8.5 x 11 print with margins
 # bash script for pdf stitcher: stich puzz*.pdf, then soln*.pdf, then join those
 
 
