@@ -1,5 +1,5 @@
 import numpy as np
-import random
+# import random
 from typing import List
 from copy import copy, deepcopy
 
@@ -125,6 +125,7 @@ class PuzzleGrid():
                         return False
 
         return True
+    #end def validate()
 
 
     def spell_check(self, checker=None):
@@ -241,6 +242,67 @@ class PuzzleGrid():
 
     #end def set_knowns()
 
+
+    def set_guessable_knowns(self, data, knowns=4):
+        """ set knowns that are more guessable
+        """
+        # need the self.words in order of decreasing length, then choose one of
+        # those from a beta distro to favor ones that are longer
+        # then take the one chosen and fill in enough letters until it's unique 
+        # or only 1 away from unique in the dictionary list
+
+        if knowns < 2:
+            raise ValueError("Must set at least 2 knowns")
+        knowns = min(knowns, 26) # cap to 26
+
+        commons = 'aeiostln'
+        lens = [len(w) for w in self.words]
+        lenss = np.argsort(-np.array(lens))
+        irand = int(np.random.beta(1, 3) * len(lenss))
+
+        sub_dict = ['',]
+        for _ in range(len(self.words)):
+
+            good_guess = True
+            irand = (irand + 1) % len(self.words)
+            guess_word = self.words[lenss[irand]]
+
+            if len(sub_dict[0]) != len(guess_word):
+                sub_dict = [w for w in data if len(w) == len(guess_word)]
+            sub_dict.remove(guess_word)
+
+            for _ in range(3): # try 3 different guesses for this word
+
+                # set knowns with at least 2 letters being from guess_word
+                known_letts = list(np.random.choice(list(set(guess_word.lower())), size=2))
+                # unk_letts = [self.num_alph(i) for i in range(26) \
+                #              if self.num_alph(i) not in known_letts]
+                unk_letts = [l.upper() for l in commons if l.upper() not in known_letts]
+                known_letts.extend(np.random.choice(unk_letts, size=knowns - len(known_letts)))
+                known_letts = [l.upper() for l in known_letts]
+
+                for dw in sub_dict:
+                    if self.equivalent_guess_words(guess_word, dw, known_letts):
+                        good_guess = False
+                        break
+
+                if good_guess:
+                    self.set_knowns(known_letts)
+                    return
+
+            sub_dict.append(guess_word)
+        #end for _ in range(len(self.words)):
+
+        print(f"Cannot find a guessable known with {knowns} letters, setting random")
+        self.set_knowns(knowns)
+    #end def set_guessable_knowns()
+           
+
+    @staticmethod
+    def equivalent_guess_words(w1, w2, knowns):
+        return all([l1 == l2 for l1, l2 in zip(w1, w2) if l1 in knowns])
+
+
     def add_guess(self, num, lett):
         """ guess a number letter combo and add that the puzzle """
         inum = num - 1 # switch to 0-based
@@ -328,11 +390,17 @@ class PuzzleGrid():
         # get a set of words that have all the letters
         isafe = 0 # safety counter for looping
         while len(uniqs) < num_letters:
+            # new_word = PuzzleGrid.new_word(word_list=word_list, data=data, distro='beta')
             # irand = np.random.randint(0, (len(data)))
             irand = int(np.random.beta(1, 3) * len(data))
             new_word = data[irand]
+
             if len(new_word) < min_word_size or \
                 len(new_word) > max_word_size: continue
+
+            if any([(new_word in w or w in new_word) for w in word_list]):
+                continue
+
             new_list = word_list + [new_word,]
             new_uniqs = set(''.join(new_list))
             if len(new_uniqs) == len(uniqs):

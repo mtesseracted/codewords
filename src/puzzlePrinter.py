@@ -5,8 +5,9 @@ import matplotlib.colors as mcols
 from puzzles import PuzzleGrid
 
 class PuzzlePrinter():
-    def __init__(self, puzzle):
+    def __init__(self, puzzle, font_size=12):
         self.puzzle = puzzle
+        self.font_size = font_size
 
     def grid2coordinates(self):
         grid = self.puzzle.make_grid()
@@ -71,7 +72,7 @@ class PuzzlePrinter():
         return fig
     #end def create_solution_fig()
 
-    def create_puzzle_fig(self, fig, fill_all=False, title=None, pad=0.5):
+    def create_puzzle_fig(self, fig, fill_all=False, title=None, pad=0.2):
         """ create a puzzle figure with title, grid, letter line, then code boxes
         :param fig: pyplot figure, assumed to be 8.5x11"
         :param fill_all: (bool) whether to fill in the solution

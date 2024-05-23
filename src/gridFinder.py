@@ -21,11 +21,12 @@ class GridBuilder():
                     safe_count = 0
                     while added < extra_count and safe_count < 100:
                         safe_count += 1
-                        word = extra_words[np.random.randint(0, len(extra_words))]
-                        while word in word_list:
-                            word = extra_words[np.random.randint(0, len(extra_words))]
+                        # word = PuzzleGrid.new_word(word_list=word_list, data=extra_words, distro='beta')
+                        new_word = extra_words[np.random.randint(0, len(extra_words))]
+                        if any([(new_word in w or w in new_word) for w in word_list]) or len(new_word) < 4:
+                            continue
 
-                        if self.place_word(word):
+                        if self.place_word(new_word):
                             added += 1
 
                 return self.puzzle
