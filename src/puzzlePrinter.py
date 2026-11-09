@@ -5,7 +5,7 @@ import matplotlib.colors as mcols
 from puzzles import PuzzleGrid
 
 class PuzzlePrinter():
-    def __init__(self, puzzle, font_size=12):
+    def __init__(self, puzzle, font_size=16):
         self.puzzle = puzzle
         self.font_size = font_size
 
@@ -61,7 +61,7 @@ class PuzzlePrinter():
             yimg = 0.5 * bg_shape[0]
 
             title = ip+1 if labels is None else labels[ip]
-            num_ax.text(ximg, yimg, str(title), fontsize=20,
+            num_ax.text(ximg, yimg, str(title), fontsize=int(1.25*self.font_size),
                     horizontalalignment='center', verticalalignment='center',
                     transform=num_ax.transData)
 
@@ -167,12 +167,13 @@ class PuzzlePrinter():
             ax.add_patch(p)
 
             coded = self.puzzle.code[ilett]
-            ax.text(ximg + 1, yimg + 3, f'{coded + 1}', fontsize=8,
+            ax.text(ximg + 1, yimg + 3, f'{coded + 1}', fontsize=int(0.4*self.font_size),
                     horizontalalignment='left', verticalalignment='top', transform=ax.transData)
 
             if ilett in self.puzzle.knowns or fill_all:
-                ax.text(ximg + 0.5 * box_size, yimg + 0.6 * box_size, f'{ll.upper()}', fontsize=12,
-                        horizontalalignment='center', verticalalignment='center', transform=ax.transData)
+                ax.text(ximg + 0.5 * box_size, yimg + 0.6 * box_size, f'{ll.upper()}', 
+                        fontsize=int(0.75*self.font_size), horizontalalignment='center', 
+                        verticalalignment='center', transform=ax.transData)
 
         return ax
 
@@ -192,12 +193,12 @@ class PuzzlePrinter():
         for ii in range(26):
             ximg = spacer * (ii + 3.25)
             yimg = round(0.5 * bg_shape[0])
-            ax.text(ximg, yimg, f'{chr(ii + ord("A"))}', fontsize=8,
+            ax.text(ximg, yimg, f'{chr(ii + ord("A"))}', fontsize=int(0.5*self.font_size),
                     horizontalalignment='center', verticalalignment='center',
                     transform=ax.transData)
             if ii in self.puzzle.knowns:
-                ax.text(ximg + 1, yimg, '/', fontsize=12, fontweight='bold',
-                        horizontalalignment='center',
+                ax.text(ximg + 1, yimg, '/', fontsize=int(0.75*self.font_size), 
+                        fontweight='bold', horizontalalignment='center',
                         verticalalignment='center', transform=ax.transData)
                 # ax.text(ximg, yimg, '\\', fontsize=10, horizontalalignment='center',
                 #         verticalalignment='center', transform=ax.transData)
@@ -228,14 +229,14 @@ class PuzzlePrinter():
                 coded = ii + jj * 13
                 ilett = self.puzzle.code_inv[coded]
                 p = plt.Rectangle((ximg, yimg), wspacer, hspacer, fill=False, lw=1.2)
-                ax.text(ximg + 1, yimg + 3, f'{coded + 1}', fontsize=8,
+                ax.text(ximg + 1, yimg + 3, f'{coded + 1}', fontsize=int(0.4*self.font_size),
                         horizontalalignment='left', verticalalignment='top', transform=ax.transData)
                 p.set_transform(ax.transData)
                 ax.add_patch(p)
 
                 if ilett in self.puzzle.knowns or fill_all:
                     ax.text(ximg + 0.5 * wspacer, yimg + 0.6 * hspacer, f'{chr(ilett+ord("A"))}',
-                            fontsize=16, horizontalalignment='center',
+                            fontsize=self.font_size, horizontalalignment='center',
                             verticalalignment='center', transform=ax.transData)
 
         return ax

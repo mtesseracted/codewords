@@ -19,12 +19,14 @@ from puzzlePrinter import PuzzlePrinter
 # DONE ~8.5 x 11 print with marginssoho
 
 
-num_puzzles = 4
+num_puzzles = 1
 seed_start = 10
+num_start = 13
 
-custom_num, custom_file = -2, 'word_lists/list1.txt'
 
-save_dir = f"book__puzzle15-{num_puzzles}__seed-{seed_start}"
+custom_num, custom_file = 1, 'word_lists/list2.txt'
+
+save_dir = f"book__puzzle13-{num_puzzles}__seed-{seed_start}"
 os.makedirs(save_dir, exist_ok=True)
 
 libpath = '/home/al/opt/word_dictionaries/custom/'
@@ -38,7 +40,7 @@ all_words = set()
 ip, safe_count, seed = 0, 0, seed_start
 while ip < num_puzzles and safe_count < 2*num_puzzles:
     safe_count += 1
-    seed += 1
+    seed += 1304
     np.random.seed(seed)
     if ip+1 == custom_num:
         ll = open(custom_file, 'r').readlines()
@@ -81,7 +83,7 @@ for ip, puzz in enumerate(puzz_list):
 
     fig = plt.figure(figsize=page_size)
     printer = PuzzlePrinter(puzz)
-    printer.create_puzzle_fig(fig, fill_all=False, title=f"Grackle Puzzle {ip+1}")
+    printer.create_puzzle_fig(fig, fill_all=False, title=f"Grackle Puzzle {ip+num_start}")
     fig.tight_layout(w_pad=0, h_pad=0, pad=0) #pad=0)
     plt.savefig(os.path.join(save_dir, f"puzz{ip+1:03d}.png"), pad_inches=0)
     plt.savefig(os.path.join(save_dir, f"puzz{ip+1:03d}.pdf"), pad_inches=0)
@@ -89,7 +91,7 @@ for ip, puzz in enumerate(puzz_list):
 
     fig = plt.figure(figsize=page_size)
     printer = PuzzlePrinter(puzz)
-    printer.create_puzzle_fig(fig, fill_all=True, title=f"Grackle Puzzle {ip+1}")
+    printer.create_puzzle_fig(fig, fill_all=True, title=f"Grackle Puzzle {ip+num_start}")
     fig.tight_layout(w_pad=0, h_pad=0, pad=0) #pad=0)
     plt.savefig(os.path.join(save_dir, f"solv{ip+1:03d}.png"), pad_inches=0)
     plt.close(fig)

@@ -269,7 +269,7 @@ class PuzzleGrid():
 
             if len(sub_dict[0]) != len(guess_word):
                 sub_dict = [w for w in data if len(w) == len(guess_word)]
-            sub_dict.remove(guess_word)
+            if guess_word in sub_dict: sub_dict.remove(guess_word)
 
             for _ in range(3): # try 3 different guesses for this word
 
